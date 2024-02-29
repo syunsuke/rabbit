@@ -1,5 +1,17 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
 # rabbit
 
@@ -8,13 +20,14 @@
 
 Rabbit is Rapidly Apply Basic But Impactful Text string utilities.
 
-Rabbitは、 Rでのプログラミングで使える
+Rabbitは、
+Rでのプログラミングで使える
 簡単で便利な文字列操作などの関数を集めたパッケージです。
+
 
 ## Installation
 
-You can install the development version of rabbit from
-[GitHub](https://github.com/) with:
+You can install the development version of rabbit from [GitHub](https://github.com/) with:
 
 インストールは以下の通り。
 
@@ -29,24 +42,23 @@ devtools::install_github("syunsuke/rabbit")
 文字列に含まれる日付から日付オブジェクトを生成します。
 主に、和暦（元号での表記）が含まれている場合に役立ちます。
 
-``` r
+```{r example1}
 library(rabbit)
 fetch_date_from_string("この文書は平成１１年２月３日に書かれました。")
-#> [1] "1999-02-03"
 ```
 
 文字列に含まれる何年何月までのものは１日を指すようにします。
 
-``` r
+```{r example2}
 fetch_date_from_string("私は昭和43年7月生まれです。")
-#> [1] "1968-07-01"
 ```
-
 **注意**
 
 文字列の中に複数日付文字列がある場合には、１つ目の日付のみが返ります。
 また、日付に類似する部分が混在すると、その部分を認識してしまうことがあります。
 関数に渡す文字列は、事前に日付を表すと思われる部分に絞って渡すと混乱がなくなります。
+
+
 
 ## 日本語のリテラル表記をエスケープされたユニコードにする
 
@@ -60,27 +72,27 @@ CRANに登録する際には、この約束事を守る必要があります。
 
 エスケープされたユニコードでの表示とは、以下のようなものです。
 
-| リテラル | ユニコード |
-|----------|------------|
-| 猫       | \u732b     |
+|リテラル|ユニコード|
+|--------|----------|
+|猫|\\u732b|
 
 実際の日本語リテラルの入っているコードは以下のようなものです。
 
-``` r
+```{r example3, eval=FALSE}
     stringr::str_extract("[0-9]{4}年[0-9]+月[0-9]+日")
 ```
 
 実際の日本語リテラルを使わずASCIIコードで表現したものは以下のようになります。
 
-``` r
+```{r example4, eval=FALSE}
     #stringr::str_extract("[0-9]{4}年[0-9]+月[0-9]+日")
     stringr::str_extract("[0-9]{4}\u5e74[0-9]+\u6708[0-9]+\u65e5")
 ```
 
 #### **注意**
 
-この処理のアイディアは、 [【R】
-日本語を含むコードを丸ごとエスケープさせる方法](https://qiita.com/zakkiiii/items/eb86fe6ff9c8e5b7715a)
+この処理のアイディアは、
+[【R】 日本語を含むコードを丸ごとエスケープさせる方法](https://qiita.com/zakkiiii/items/eb86fe6ff9c8e5b7715a)
 で紹介されていた方法を基礎にしています。
 既存のエスケープ関数を利用してトリッキーに変換を行っているので、
 複雑にエスケープされたエスケープ文字等が混在すると、
@@ -88,26 +100,23 @@ CRANに登録する際には、この約束事を守る必要があります。
 なるべく、日本語リテラルをASCIIに変換するという目の届く範囲での運用を想定し、
 ファイル全体を自動で書き換える等の運用は想定していません（何が起こるかわからない）。
 
+
 ### 基本的な使い方
 
 `jp2unicode()`関数は、この変換を行ってくれます。
 
-``` r
+```{r example5}
 target <- 'stringr::str_extract("[0-9]{4}年[0-9]+月[0-9]+日")'
 jp2unicode(target)
-#> [1] "stringr::str_extract(\"[0-9]{4}\\u5e74[0-9]+\\u6708[0-9]+\\u65e5\")"
 ```
-
 Rの場合、文字列の値を表現するとエスケープ文字が入ってしまいます。
-ですから、実際のコードに表記する場合は次のように’message()’関数で、
+ですから、実際のコードに表記する場合は次のように'message()'関数で、
 標準出力等に表示させます。
 
-``` r
+```{r example6}
 target <- 'stringr::str_extract("[0-9]{4}年[0-9]+月[0-9]+日")'
 jp2unicode(target) %>% message()
-#> stringr::str_extract("[0-9]{4}\u5e74[0-9]+\u6708[0-9]+\u65e5")
 ```
-
 これを該当するコードの部分にコピー＆ペーストすることで、
 日本語リテラルをASCIIコードのみで表現できるようになります。
 
@@ -123,6 +132,7 @@ jp2unicode(target) %>% message()
 
 実用的にはこれが一番使いやすいと思います。
 
+
 ### ファイルを受け取る方法
 
 `jp2unicode()`関数は、文字列のベクトルを受け取ります。
@@ -131,29 +141,26 @@ jp2unicode(target) %>% message()
 
 以下は、ソースコードの一部を変換するサンプルです。
 
-``` r
+```{r example7}
 file_path <- "R/jc2ad.R"
 
 readLines(file_path) %>%  .[46:53] %>% 
   jp2unicode() %>%
   paste(collapse = "\n") %>% 
   message()
-#>   #reiwa2ad <- sub_jc2ad_strconv_func("令和",2019)
-#>   reiwa2ad <- sub_jc2ad_strconv_func("\u4ee4\u548c",2019)
-#> 
-#>   #heisei2ad <- sub_jc2ad_strconv_func("平成",1989)
-#>   heisei2ad <- sub_jc2ad_strconv_func("\u5e73\u6210",1989)
-#> 
-#>   #syouwa2ad <- sub_jc2ad_strconv_func("昭和",1926)
-#>   syouwa2ad <- sub_jc2ad_strconv_func("\u662d\u548c",1926)
+
 ```
 
 出力をファイルにすることも出来ます。
 
-``` r
+```{r example8}
 file_path <- "R/jc2ad.R"
 
 readLines(file_path) %>% 
   jp2unicode() %>%
   writeLines("devwork/jc2ad_ascii.R")
+
 ```
+
+
+
